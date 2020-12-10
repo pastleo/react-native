@@ -40,15 +40,17 @@ const schemaValidator = require('../SchemaValidator.js');
 
 import type {SchemaType} from '../CodegenSchema';
 
-type Options = $ReadOnly<{|
+type Options = $ReadOnly<{
   libraryName: string,
   schema: SchemaType,
   outputDirectory: string,
   moduleSpecName: string,
   packageName?: string, // Some platforms have a notion of package, which should be configurable.
-|}>;
+}>;
 
 type Generators =
+  | 'componentsAndroid'
+  | 'componentsIOS'
   | 'descriptors'
   | 'events'
   | 'props'
@@ -58,10 +60,10 @@ type Generators =
   | 'modulesCxx'
   | 'modulesIOS';
 
-type Config = $ReadOnly<{|
+type Config = $ReadOnly<{
   generators: Array<Generators>,
   test?: boolean,
-|}>;
+}>;
 
 const GENERATORS = {
   descriptors: [generateComponentDescriptorH.generate],
@@ -74,6 +76,24 @@ const GENERATORS = {
     generatePropsJavaDelegate.generate,
   ],
   // TODO: Refactor this to consolidate various C++ output variation instead of forking per platform.
+  componentsAndroid: [
+    // TODO: enable C++ output below:
+    // generateComponentDescriptorH.generate,
+    // generateEventEmitterCpp.generate,
+    // generateEventEmitterH.generate,
+    // generatePropsCpp.generate,
+    // generatePropsH.generate,
+    generatePropsJavaInterface.generate,
+    generatePropsJavaDelegate.generate,
+  ],
+  componentsIOS: [
+    generateComponentDescriptorH.generate,
+    generateEventEmitterCpp.generate,
+    generateEventEmitterH.generate,
+    generateComponentHObjCpp.generate,
+    generatePropsCpp.generate,
+    generatePropsH.generate,
+  ],
   modulesAndroid: [
     GenerateModuleJniCpp.generate,
     GenerateModuleJniH.generate,
